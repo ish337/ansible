@@ -51,21 +51,17 @@
 ## [openSUSE]
 ## green.example.com
 ## blue.example.com
-[all:children]
-red-servers
-deb-servers
-
-[deb-servers]
+[ubuntu_servers]
 srv1 ansible_host=10.20.42.90
 
-[red-servers]
+[redhat_servers]
 srv2 ansible_host=1.1.1.1
 
 [all:vars]
-ansible_password=12345678
+ansible_password=1234567890
 
-[deb-servers:vars]
-ansible_user=user
+[redhat_servers:vars]
+ansible_user=ec2_user
 
-[red-servers:vars]
-ansible_user=ec-user
+[ubuntu_servers:vars]
+ansible_user=ans_user
