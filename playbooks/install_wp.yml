@@ -1,5 +1,5 @@
 - name: wp-install
-  hosts: ubuntu_servers 
+  hosts: server
   become: yes
 
   vars:
@@ -46,7 +46,6 @@
         src: https://wordpress.org/latest.tar.gz
         dest: /srv/www
         remote_src: yes
-        extra_opts: [--strip-components=1]
         creates: /srv/www/wp-config-sample.php
       notify: Set permissions
   
