@@ -1,0 +1,28 @@
+- name: users
+  hosts: all
+  become: yes
+
+
+  tasks:
+
+    - name: copy config ubuntu
+      copy:
+        src: /home/user/ansible/index/user_script.sh
+        dest: /home/user/user_script.sh
+        mode: "0755"
+
+    - name: running script
+      command: /home/user/user_script.sh
+
+    - name: rm script
+      file: 
+        state: absent
+        path: /home/user/user_script.sh
+
+    - name: show userinfo
+      command: grep '^newuser:' /etc/passwd
+      register: user_info
+
+    - name: Display user info
+      debug:
+        var: user_info.stdout

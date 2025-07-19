@@ -1,0 +1,38 @@
+- name: nginx_install
+  hosts: all
+  become: yes
+ 
+  
+  tasks:
+    - name: installing nginx ubuntu
+      apt:
+        update_cache: yes
+        name: nginx
+        state: present
+      when: ansible_facts['os_family'] == "Debian"    
+
+    - name: changing config ubuntu
+      copy:
+        src: /home/user/ansible/index/index.html
+        dest: /var/www/html/index.html
+      when: ansible_facts['os_family'] == "Debian"
+      notify: restart
+
+    - name: installing nginx redhat
+      yum:
+        name: nginx
+        state: present       
+      when: ansible_facts['os_family'] == "RedHat"
+      
+    - name: changing config redhat
+      copy:
+        src: /home/user/ansible/index/index.html
+        dest: /usr/share/nginx/html/index/html
+      when: ansible_facts['os_family'] == "RedHat"
+      notify: restart
+
+  handlers:
+    - name: restart
+      systemd:
+        name: nginx
+        state: restarted  

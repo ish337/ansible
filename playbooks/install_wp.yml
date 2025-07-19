@@ -1,5 +1,5 @@
 - name: wp-install
-  hosts: server
+  hosts: srv1
   become: yes
 
   vars:
