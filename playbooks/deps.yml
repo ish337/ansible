@@ -1,0 +1,14 @@
+- name: Install Ansible Galaxy dependencies locally
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    modules:
+      - ansible.posix
+      - community.mysql
+
+  tasks:
+    - name: Install dependencies
+      command:
+        cmd: "ansible-galaxy collection install {{ modules | join(' ') }}"
