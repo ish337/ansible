@@ -1,0 +1,10 @@
+---
+# tasks file for extracting_wp
+
+  - name: extracting wp
+    unarchive:
+      src: https://wordpress.org/latest.tar.gz
+      dest: /srv/www
+      remote_src: yes
+      creates: /srv/www/wp-config-sample.php
+    notify: Set permissions

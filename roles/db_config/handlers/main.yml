@@ -1,0 +1,7 @@
+---
+# handlers file for db_config
+
+  - name: Start MYSQL
+    service:
+      name: mysql
+      state: started

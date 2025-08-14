@@ -1,0 +1,8 @@
+---
+# tasks file for install_dependecies
+  
+  - name: installing dependencies
+    apt:
+      update_cache: yes
+      pkg: "{{ packg }}"
+      state: present

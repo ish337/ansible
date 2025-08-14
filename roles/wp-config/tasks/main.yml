@@ -1,0 +1,20 @@
+---
+# tasks file for wp-config
+
+  - name: creating wp-conf
+    template:
+      src: wordpress.conf.j2
+      dest: /etc/apache2/sites-available/wordpress.conf
+    notify: Reload apache2
+
+  - name: enabling wp-site
+    command: a2ensite wordpress
+    notify: Reload apache2
+
+  - name: rewrite
+    command: a2enmod rewrite
+    notify: Reload apache2
+
+  - name: disable its works
+    command: a2dissite 000-default
+    notify: Reload apache2

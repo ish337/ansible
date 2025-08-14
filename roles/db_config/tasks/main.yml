@@ -1,0 +1,58 @@
+---
+# tasks file for db_config
+
+  - name: create mysql db
+    mysql_db:
+      name: "{{ wp_db_name }}"
+      state: present
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+
+  - name: create db user
+    mysql_user:
+      name: "{{ wp_db_user }}"
+      host: localhost
+      password: "{{ wp_db_password }}"
+      priv: "{{ wp_db_name }}.*:ALL"
+      state: present
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+    notify: Start MYSQL
+
+  - name: copy sample config
+    copy:
+      src: /srv/www/wordpress/wp-config-sample.php
+      dest: /srv/www/wordpress/wp-config.php
+      remote_src: yes
+      owner: www-data
+      group: www-data
+      mode: '0644'
+    become: yes
+
+  - name: set db-name
+    lineinfile:
+      path: /srv/www/wordpress/wp-config.php
+      regexp: "define\\(\\s*'DB_NAME'.*"
+      line: "define('DB_NAME', '{{ wp_db_name }}');"
+      owner: www-data
+      group: www-data
+      mode: '0644'
+    become: yes
+
+  - name: set db-user
+    lineinfile:
+      path: /srv/www/wordpress/wp-config.php
+      regexp: "define\\(\\s*'DB_USER'.*"
+      line: "define('DB_USER', '{{ wp_db_user }}');"
+      owner: www-data
+      group: www-data
+      mode: '0644'
+    become: yes
+
+  - name: set db-passwd
+    lineinfile:
+      path: /srv/www/wordpress/wp-config.php
+      regexp: "define\\(\\s*'DB_PASSWORD'.*"
+      line: "define('DB_PASSWORD', '{{ wp_db_password }}');"
+      owner: www-data
+      group: www-data
+      mode: '0644'
+    become: yes

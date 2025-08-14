@@ -1,0 +1,10 @@
+---
+# tasks file for workdir
+  
+ - name: creating /srv/www
+   file:
+     path: /srv/www
+     state: directory
+     owner: www-data
+     group: www-data
+     mode: '0755'

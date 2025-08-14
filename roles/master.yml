@@ -1,0 +1,10 @@
+- name: wp-install
+  hosts: host01
+  gather_facts: yes
+  become: yes
+  roles:
+    - install_dependecies
+    - workdir
+    - extracting_wp
+    - wp-config
+    - db_config
