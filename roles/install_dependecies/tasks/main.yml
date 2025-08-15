@@ -1,8 +1,19 @@
 ---
 # tasks file for install_dependecies
   
-  - name: installing dependencies
+  - name: installing dependencies debian
     apt:
       update_cache: yes
-      pkg: "{{ packg }}"
+      pkg: "{{ pack_deb }}"
       state: present
+    when:  ansible_facts['os_family'] == "Debian"
+
+  - name: installing dependencies rh
+    dnf:
+      update_cache: yes
+      name: "{{ pack_rh }}"
+      state: present
+    notify:
+      - Start db
+      - Start apache
+    when:  ansible_facts['os_family'] == "RedHat"

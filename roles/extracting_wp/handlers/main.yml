@@ -8,3 +8,16 @@
      recurse: yes
      owner: www-data
      group: www-data
+
+ - name: Set permissions rh
+   file:
+     path: /var/www/html/
+     state: directory
+     recurse: yes
+     owner: apache
+     group: apache
+
+ - name: Reload firewall
+   service:
+     name: firewalld
+     state: reloaded

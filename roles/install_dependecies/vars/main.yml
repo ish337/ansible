@@ -1,6 +1,6 @@
 ---
 # vars file for install_dependecies
-packg:
+pack_deb:
   - apache2
   - ghostscript
   - libapache2-mod-php
@@ -17,8 +17,22 @@ packg:
   - php-zip
   - python3-pymysql
 
-ansible_mysql_login_user: root
-ansible_mysql_login_password: "123456789"
-wp_db_name: wordpress
-wp_db_user: wordpress
-wp_db_password: "12356789"
+pack_rh:
+  - httpd
+  - mariadb
+  - mariadb-server
+  - php-gd
+  - php-soap
+  - php-intl
+  - php-mysqlnd
+  - php-pdo
+  - php-pecl-zip
+  - php-fpm
+  - php-opcache
+  - php-curl
+  - php-zip
+  - php-xmlrpc
+  - wget
+  - python3-PyMySQL
+  - policycoreutils-python-utils
+  - php-json

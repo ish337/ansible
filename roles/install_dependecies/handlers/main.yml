@@ -1,2 +1,14 @@
 ---
 # handlers file for install_dependecies
+
+  - name: Start db
+    service:
+      name: mariadb
+      state: restarted
+      enabled: true
+
+  - name: Start apache
+    service:
+      name: httpd
+      state: restarted
+      enabled: true

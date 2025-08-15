@@ -4,3 +4,9 @@
     service:
       name: apache2
       state: reloaded
+
+  - name: Start apache RH
+    service:
+      name: httpd
+      state: restarted
+      enabled: true

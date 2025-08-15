@@ -6,15 +6,43 @@
       src: wordpress.conf.j2
       dest: /etc/apache2/sites-available/wordpress.conf
     notify: Reload apache2
+    when:  ansible_facts['os_family'] == "Debian"
 
   - name: enabling wp-site
     command: a2ensite wordpress
     notify: Reload apache2
+    when:  ansible_facts['os_family'] == "Debian"
 
   - name: rewrite
     command: a2enmod rewrite
     notify: Reload apache2
+    when:  ansible_facts['os_family'] == "Debian"
 
   - name: disable its works
     command: a2dissite 000-default
     notify: Reload apache2
+    when:  ansible_facts['os_family'] == "Debian"
+
+  - name: config
+    ansible.builtin.blockinfile:
+      path: /etc/httpd/conf/httpd.conf
+      insertafter: EOF
+      block: |
+        <VirtualHost *:80>
+        ServerAdmin test@test.com
+        DocumentRoot /var/www/html/wordpress/
+        ServerName tecminttest.com
+        ServerAlias www.tecminttest.com
+
+        <Directory "/var/www/html/wordpress">
+        Options Indexes FollowSymLinks
+        AllowOverride all
+        Require all granted
+        </Directory>
+
+        ErrorLog /var/log/httpd/tecminttest_error.log
+        CustomLog /var/log/httpd/tecminttest_access.log common
+        </VirtualHost>
+    notify:
+       - Start apache RH
+    when:  ansible_facts['os_family'] == "RedHat"

@@ -1,0 +1,162 @@
+### Run deps.yml first
+
+- name: Install WP for RedHat
+  hosts: host02
+  become: yes
+
+  vars:
+    packages:
+      - httpd
+      - mariadb
+      - mariadb-server
+      - php-gd
+      - php-soap
+      - php-intl
+      - php-mysqlnd
+      - php-pdo
+      - php-pecl-zip
+      - php-fpm
+      - php-opcache
+      - php-curl
+      - php-zip
+      - php-xmlrpc
+      - wget
+      - python3-PyMySQL
+      - policycoreutils-python-utils
+      - php-json
+
+    mysql_root_password: "123456789"
+    wp_db_name: wordpress
+    wp_db_user: wordpress
+    wp_db_password: "123456789"
+    mariadb_socket: /var/lib/mysql/mysql.sock
+
+  tasks:
+    
+    - name: expose port 80
+      ansible.posix.firewalld:
+        port: 80/tcp
+        permanent: true
+        state: enabled
+      notify:
+        - Reload firewall
+
+    - name: Installing packages
+      dnf:
+        update_cache: yes
+        name: "{{ packages }}"
+        state: present
+      notify:
+        - Start db
+        - Start apache
+
+    - name: Ensure mariadb is running
+      service:
+        name: mariadb
+        state: started
+        enabled: true
+
+    - name: Set MariaDB root password (socket auth)
+      community.mysql.mysql_user:
+        login_unix_socket: "{{ mariadb_socket }}"
+        user: root
+        password: "{{ mysql_root_password }}"
+        host: "%"
+        state: present
+
+    - name: Remove anonymous users
+      community.mysql.mysql_user:
+        login_unix_socket: "{{ mariadb_socket }}"
+        name: ''
+        host_all: true
+        state: absent
+
+    - name: Remove test database
+      community.mysql.mysql_db:
+        login_unix_socket: "{{ mariadb_socket }}"
+        name: test
+        state: absent
+
+    - name: Creating DB
+      community.mysql.mysql_db:
+        login_unix_socket: "{{ mariadb_socket }}"
+        name: "{{ wp_db_name }}"
+        state: present
+
+    - name: Create DB user
+      community.mysql.mysql_user:
+        login_unix_socket: "{{ mariadb_socket }}"
+        name: "{{ wp_db_user }}"
+        host: localhost
+        password: "{{ wp_db_password }}"
+        priv: "{{ wp_db_name }}.*:ALL"
+        state: present
+    
+    - name: create dir
+      file:
+        path: /var/www/html
+        state: directory
+        mode: "0755"
+
+    - name: downloading WP files
+      unarchive:
+        src: https://wordpress.org/latest.tar.gz
+        dest: /var/www/html/
+        remote_src: yes
+      notify: Set permissions
+
+    - name: SELinux context
+      command: semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/wordpress(/.*)?"
+
+    - name: restorecon
+      command: restorecon -Rv /var/www/html/wordpress
+      changed_when: false
+
+    - name: config
+      ansible.builtin.blockinfile:
+        path: /etc/httpd/conf/httpd.conf
+        insertafter: EOF
+        block: |
+          <VirtualHost *:80>
+          ServerAdmin test@test.com
+          DocumentRoot /var/www/html/wordpress/
+          ServerName tecminttest.com
+          ServerAlias www.tecminttest.com
+
+          <Directory "/var/www/html/wordpress">
+          Options Indexes FollowSymLinks
+          AllowOverride all
+          Require all granted
+          </Directory>
+
+          ErrorLog /var/log/httpd/tecminttest_error.log
+          CustomLog /var/log/httpd/tecminttest_access.log common
+          </VirtualHost>
+      notify:         
+        - Start apache
+
+  handlers:
+    - name: Start db
+      service:
+        name: mariadb
+        state: restarted
+        enabled: true
+
+    - name: Start apache
+      service:
+        name: httpd
+        state: restarted
+        enabled: true
+   
+    - name: Set permissions
+      file:
+        path: /var/www/html/
+        state: directory
+        recurse: yes
+        owner: apache
+        group: apache    
+
+    - name: Reload firewall
+      service:
+        name: firewalld
+        state: reloaded  

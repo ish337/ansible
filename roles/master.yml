@@ -1,5 +1,5 @@
 - name: wp-install
-  hosts: host01
+  hosts: host
   gather_facts: yes
   become: yes
   roles:

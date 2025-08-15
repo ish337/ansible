@@ -1,10 +1,37 @@
 ---
 # tasks file for extracting_wp
 
-  - name: extracting wp
+  - name: extracting wp debian
     unarchive:
       src: https://wordpress.org/latest.tar.gz
       dest: /srv/www
       remote_src: yes
       creates: /srv/www/wp-config-sample.php
     notify: Set permissions
+    when:  ansible_facts['os_family'] == "Debian"
+
+  - name: downloading WP files
+    unarchive:
+      src: https://wordpress.org/latest.tar.gz
+      dest: /var/www/html/
+      remote_src: yes
+    notify: Set permissions rh
+    when:  ansible_facts['os_family'] == "RedHat"      
+
+  - name: SELinux context
+    command: semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/wordpress(/.*)?"
+    when:  ansible_facts['os_family'] == "RedHat"    
+
+  - name: restorecon
+    command: restorecon -Rv /var/www/html/wordpress
+    changed_when: false
+    when:  ansible_facts['os_family'] == "RedHat"  
+
+  - name: expose port 80
+    ansible.posix.firewalld:
+      port: 80/tcp
+      permanent: true
+      state: enabled
+    notify:
+      - Reload firewall
+    when:  ansible_facts['os_family'] == "RedHat"
